@@ -1,12 +1,12 @@
 {
-  "name": "elm-webpack-starter",
-  "description": "Webpack setup for writing Elm apps",
-  "version": "0.6.2",
-  "license": "MIT",
-  "author": "Peter Morawiec",
+  "name": "dualnback-elm",
+  "description": "Dual N Back experiment written in Elm",
+  "version": "0.0.1",
+  "license": "GPL3",
+  "author": "Danny O'Brien",
   "repository": {
     "type": "git",
-    "url": "https://github.com/moarwick/elm-webpack-starter"
+    "url": "https://github.com/dannyob/dualnback"
   },
   "scripts": {
     "start": "webpack-dev-server --hot --inline --content-base src/",

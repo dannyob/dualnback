@@ -1,8 +1,8 @@
 {
-    "version": "1.0.0",
-    "summary": "Example using `elm-webpack-loader`.",
-    "repository": "https://github.com/moarwick/elm-webpack-starter.git",
-    "license": "MIT",
+    "version": "0.0.1",
+    "summary": "Dual N Back game in Elm",
+    "repository": "https://github.com/dannyob/dualnback.git",
+    "license": "GPL3",
     "source-directories": [
         "src"
     ],
