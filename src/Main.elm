@@ -5,10 +5,15 @@ import Array exposing (..)
 
 -- Model
 
+type alias Card = { audio: String, visual: Int }
 type alias Cell = { contents: String, position: Int }
-type alias Model = { cells: Array Cell, note: String  }
+type alias Model = { cards: List Card, note: String  }
 
 type Msg = Reset
+
+initialCard: Card
+initialCard = { audio = "Yowza", visual = 5 }
+
 
 update: Msg -> Model -> (Model, Cmd Msg)
 
@@ -17,22 +22,20 @@ update msg model =
         Reset -> (model, Cmd.none)
 
 view: Model -> Html Msg
-view model = table [] [ 
-    tr []  (List.map (cellView model) [0..2]) ,
-    tr []  (List.map (cellView model) [3..5]) , 
-    tr []  (List.map (cellView model) [6..8]) ] 
+view model = cardView model (Maybe.withDefault initialCard (List.head model.cards) )
 
-
-cellView: Model -> Int -> Html Msg
-cellView model pos = 
-    let cell = Maybe.withDefault ({ contents ="", position = pos }) (Array.get pos model.cells)
+cardView: Model -> Card -> Html Msg
+cardView model card = 
+    let cv model ps = if (ps == card.visual) then text "HELLO" else text "NOOO"
     in
-       td [ class ("cell" ++ toString cell.position) ] [ text cell.contents ] 
+       table [] [ 
+           tr []  (List.map (cv model) [0..2]) ,
+           tr []  (List.map (cv model) [3..5]) , 
+           tr []  (List.map (cv model) [6..8]) ] 
 
-initCells = Array.initialize 9 (Cell "hello")
 
 model : Model 
-model = { cells = initCells, note = "starting" }
+model = { cards = [ initialCard ] , note = "starting" }
 
 init = ( model, Cmd.none )
 
