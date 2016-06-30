@@ -1,28 +1,43 @@
-import Html exposing (Html, table, tr, td, text, div)
+import Html exposing (..)
 import Html.Attributes exposing (class)
 import Html.App as Html
+import Array exposing (..)
 
 -- Model
 
-type alias Model = { note: String  }
+type alias Cell = { contents: String, position: Int }
+type alias Model = { cells: Array Cell, note: String  }
 
 type Msg = Reset
 
-update: Msg -> Model -> Model
+update: Msg -> Model -> (Model, Cmd Msg)
+
 update msg model =
     case msg of
-        Reset -> { note = "hello" }
+        Reset -> (model, Cmd.none)
 
-
-view :Model -> Html Msg
+view: Model -> Html Msg
 view model = table [] [ 
-    tr [ class "row1" ] [ td [ class "col1" ] [ text "x" ] , td [ class "col2"] [ text "y" ] , td [ class "col3" ] [ text "z" ] ],
-    tr [ class "row2" ] [ td [ class "col1" ] [ text "x" ] , td [ class "col2"] [ text "y" ] , td [ class "col3" ] [ text "z" ] ],
-    tr [ class "row3" ] [ td [ class "col1" ] [ text "x" ] , td [ class "col2"] [ text "y" ] , td [ class "col3" ] [ text "z" ] ]
-    ]
+    tr []  (List.map (cellView model) [0..2]) ,
+    tr []  (List.map (cellView model) [3..5]) , 
+    tr []  (List.map (cellView model) [6..8]) ] 
 
+
+cellView: Model -> Int -> Html Msg
+cellView model pos = 
+    let cell = Maybe.withDefault ({ contents ="", position = pos }) (Array.get pos model.cells)
+    in
+       td [ class ("cell" ++ toString cell.position) ] [ text cell.contents ] 
+
+initCells = Array.initialize 9 (Cell "hello")
 
 model : Model 
-model = { note = "starting" }
+model = { cells = initCells, note = "starting" }
 
-main = Html.beginnerProgram { model = model, view = view, update = update }
+init = ( model, Cmd.none )
+
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    Sub.none
+
+main = Html.program { init= init, view = view, update = update, subscriptions = subscriptions }
