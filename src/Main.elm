@@ -1,7 +1,6 @@
 import Html exposing (..)
 import Html.Attributes exposing (class, style)
 import Html.App as Html
-import Array exposing (..)
 import Html.Events exposing (onClick)
 import Time exposing (every,second)
 
@@ -20,7 +19,6 @@ initialCard = { audio = "Yowza", visual = 5 }
 
 
 update: Msg -> Model -> (Model, Cmd Msg)
-
 update msg model =
     case msg of
         Reset -> (model, Cmd.none)
@@ -47,6 +45,7 @@ cardView model card =
 model : Model 
 model = { cards = [ initialCard ] , speaking = Nothing }
 
+init : ( Model, Cmd a )
 init = ( model, Cmd.none )
 
 subscriptions : Model -> Sub Msg
@@ -54,4 +53,5 @@ subscriptions model =
     if model.speaking == Nothing then Sub.none 
        else every second FinishSpeaking
 
+main : Program Never
 main = Html.program { init= init, view = view, update = update, subscriptions = subscriptions }
