@@ -3,6 +3,7 @@ import Html.Attributes exposing (class, style)
 import Html.App as Html
 import Array exposing (..)
 import Html.Events exposing (onClick)
+import Time exposing (every,second)
 
 -- Model
 
@@ -12,7 +13,7 @@ type alias Model = { cards: List Card, speaking: Maybe String}
 
 type Msg = Reset 
          | Say String
-         | FinishSpeaking
+         | FinishSpeaking Time.Time
 
 initialCard: Card
 initialCard = { audio = "Yowza", visual = 5 }
@@ -24,7 +25,7 @@ update msg model =
     case msg of
         Reset -> (model, Cmd.none)
         Say s -> ({model | speaking = Just s }, Cmd.none)
-        FinishSpeaking -> ({model | speaking = Nothing }, Cmd.none)
+        FinishSpeaking t -> ({model | speaking = Nothing }, Cmd.none)
 
 view: Model -> Html Msg
 view model = cardView model (Maybe.withDefault initialCard (List.head model.cards) )
@@ -50,6 +51,7 @@ init = ( model, Cmd.none )
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    Sub.none
+    if model.speaking == Nothing then Sub.none 
+       else every second FinishSpeaking
 
 main = Html.program { init= init, view = view, update = update, subscriptions = subscriptions }
