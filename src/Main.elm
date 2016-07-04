@@ -6,52 +6,45 @@ import Time exposing (every,second)
 
 -- Model
 
-type alias Card = { audio: String, visual: Int }
-type alias Cell = { contents: String, position: Int }
-type alias Model = { cards: List Card, speaking: Maybe String}
+type alias Model = { deck: Deck }
 
 type Msg = Reset 
-         | Say String
-         | FinishSpeaking Time.Time
 
-initialCard: Card
-initialCard = { audio = "Yowza", visual = 5 }
+type alias Cell = Int
+type alias Card = { position: Cell }
+
+type alias Deck = List Card
 
 
 update: Msg -> Model -> (Model, Cmd Msg)
-update msg model =
-    case msg of
-        Reset -> (model, Cmd.none)
-        Say s -> ({model | speaking = Just s }, Cmd.none)
-        FinishSpeaking t -> ({model | speaking = Nothing }, Cmd.none)
+update msg model = (model, Cmd.none)
 
 view: Model -> Html Msg
-view model = cardView model (Maybe.withDefault initialCard (List.head model.cards) )
+view model = deckView model
 
-cardView: Model -> Card -> Html Msg
-cardView model card = 
-    let cv model ps = if (ps == card.visual) then td [style [ ("backgroundColor", "red")  ]] [ text "" ]   else td [] [text ""]
+showCardOrNot : Maybe Card -> Cell -> Html Msg
+showCardOrNot card cell  = 
+    let xo = case card of
+        Nothing -> text "0"
+        Just b -> if b.position == cell then text "X" else text "0"
     in
-       div [] [table [ style [ ("width", "100%"), ("height", "200px" ) ] ] [ 
-           tr []  (List.map (cv model) [0..2]) ,
-           tr []  (List.map (cv model) [3..5]) , 
-           tr []  (List.map (cv model) [6..8]) ] ,
-           text (case model.speaking of 
-              Just x -> x
-              Nothing -> "shhh"),
-             button [ onClick (Say "hello") ] [ text "hello" ] ]
+       td [] [xo]
+
+deckView model = 
+    let tc = List.head model.deck
+    in table [] [ 
+             tr [] [ showCardOrNot tc (0), showCardOrNot tc (1) , showCardOrNot tc (2) ]
+           , tr [] [ showCardOrNot tc (3), showCardOrNot tc (4) , showCardOrNot tc (5) ]
+           , tr [] [ showCardOrNot tc (6), showCardOrNot tc (7) , showCardOrNot tc (8) ]
+           ]
 
 
-model : Model 
-model = { cards = [ initialCard ] , speaking = Nothing }
 
 init : ( Model, Cmd a )
-init = ( model, Cmd.none )
+init = ( { deck= [ { position = 3}  ] } , Cmd.none )
 
 subscriptions : Model -> Sub Msg
-subscriptions model =
-    if model.speaking == Nothing then Sub.none 
-       else every second FinishSpeaking
+subscriptions model = Sub.none
 
 main : Program Never
 main = Html.program { init= init, view = view, update = update, subscriptions = subscriptions }
