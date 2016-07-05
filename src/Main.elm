@@ -24,11 +24,12 @@ view model = deckView model
 
 showCardOrNot : Maybe Card -> Cell -> Html Msg
 showCardOrNot card cell  = 
-    let xo = case card of
-        Nothing -> text "0"
-        Just b -> if b.position == cell then text "X" else text "0"
+    let
+        xo = case card of
+        Nothing -> ("background-color", "grey")
+        Just b -> if b.position == cell then ("background-color", "red") else ("background-color", "grey")
     in
-       td [] [xo]
+       td [style [("border", "2px solid black"), ("width","100px"),("height", "100px"), xo]] []
 
 deckView model = 
     let tc = List.head model.deck
