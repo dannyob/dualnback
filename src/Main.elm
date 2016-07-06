@@ -7,9 +7,9 @@ import Random
 
 -- Model
 
-type alias Model = { deck: Deck }
+type alias Model = { deck: Deck , score: Int }
 
-type Msg = Reset | NewCard | RandomCard Int
+type Msg = Reset | NewCard | RandomCard Int | VisualNBackMatch
 
 type alias Cell = Int
 type alias Card = { position: Cell }
@@ -22,6 +22,7 @@ update msg model = case msg of
                                   Reset -> (model, Cmd.none)
                                   NewCard -> (model, Random.generate RandomCard (Random.int 0 8))
                                   RandomCard random_int -> (addNewCardToDeck model { position = random_int  }, Cmd.none)
+                                  VisualNBackMatch -> if (isPositionTheSame model 2) then ({ model |  score = model.score + 1 }, Cmd.none) else ({ model | score = model.score - 1 }, Cmd.none)
 
 view: Model -> Html Msg
 view model = deckView model
@@ -49,12 +50,12 @@ deckView model =
              tr [] [ showCardOrNot tc (0), showCardOrNot tc (1) , showCardOrNot tc (2) ]
            , tr [] [ showCardOrNot tc (3), showCardOrNot tc (4) , showCardOrNot tc (5) ]
            , tr [] [ showCardOrNot tc (6), showCardOrNot tc (7) , showCardOrNot tc (8) ]
-           ], button [onClick NewCard] [ text "New Cards, Please" ], if isPositionTheSame model 2 then text "NBACK!" else text "NOBACK!" ]
+           ], div [] [text ("Score:" ++ toString (model.score))],  button [onClick NewCard] [ text "New Cards, Please" ], if isPositionTheSame model 2 then text "NBACK!" else text "NOBACK!" , div [] [ button [onClick VisualNBackMatch] [ text "Visual Match" ] ]]
                                                                           
 
 
 init : ( Model, Cmd a )
-init = ( { deck= [ { position = 5} , { position = 3 }, { position = 2} ] } , Cmd.none )
+init = ( { score = 0 , deck= [ { position = 5} , { position = 3 }, { position = 2} ] } , Cmd.none )
 
 addNewCardToDeck : Model -> Card -> Model
 addNewCardToDeck model newcard  = { model | deck = newcard :: model.deck }
