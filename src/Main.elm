@@ -26,8 +26,16 @@ update msg model = case msg of
 view: Model -> Html Msg
 view model = deckView model
 
+isPositionTheSame model nback = 
+    let
+        h = List.head model.deck -- Maybe value
+        f = List.head (List.drop nback model.deck)  -- Maybe value
+    in
+       h == f
+
+
 showCardOrNot : Maybe Card -> Cell -> Html Msg
-showCardOrNot card cell  = 
+showCardOrNot card cell  =  
     let
         xo = case card of
         Nothing -> ("background-color", "grey")
@@ -41,7 +49,8 @@ deckView model =
              tr [] [ showCardOrNot tc (0), showCardOrNot tc (1) , showCardOrNot tc (2) ]
            , tr [] [ showCardOrNot tc (3), showCardOrNot tc (4) , showCardOrNot tc (5) ]
            , tr [] [ showCardOrNot tc (6), showCardOrNot tc (7) , showCardOrNot tc (8) ]
-           ], button [onClick NewCard] [ text "New Cards, Please" ] ]
+           ], button [onClick NewCard] [ text "New Cards, Please" ], if isPositionTheSame model 2 then text "NBACK!" else text "NOBACK!" ]
+                                                                          
 
 
 init : ( Model, Cmd a )
