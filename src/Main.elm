@@ -20,12 +20,14 @@ type alias Deck = List Card
 update: Msg -> Model -> (Model, Cmd Msg)
 update msg model = case msg of
                                   Reset -> (model, Cmd.none)
-                                  NewCard -> (model, Random.generate RandomCard (Random.int 0 8))
-                                  RandomCard random_int -> (addNewCardToDeck model { position = random_int  }, Cmd.none)
+                                  NewCard -> (model, Random.generate RandomCard (Random.int (0-2) 8))
+                                  RandomCard random_int -> if (random_int >= 0) then (addNewCardToDeck model { position = random_int  }, Cmd.none) else (addNewCardToDeck model (nbackCard model 2), Cmd.none)
                                   VisualNBackMatch -> if (isPositionTheSame model 2) then ({ model |  score = model.score + 1 }, Cmd.none) else ({ model | score = model.score - 1 }, Cmd.none)
 
 view: Model -> Html Msg
 view model = deckView model
+
+nbackCard model nback = Maybe.withDefault  { position = 1 }  (List.head (List.drop nback model.deck))
 
 isPositionTheSame model nback = 
     let
