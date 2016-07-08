@@ -6,17 +6,23 @@ import Random
 
 -- Model
 
-type alias Model = { n: Int, deck: Deck , score: Int }
-
-type Msg = Reset | NewCard | GotRandomCard (Model -> Card) | VisualNBackMatch
-
 type alias Cell = Int
 type alias Card = { position: Cell }
-
 type alias Deck = List Card
 
+type alias Model = { n: Int, deck: Deck , score: Int } -- n = number of cards back to match, deck
+                                                       -- deck = collection of past Cards (positions)
+                                                       -- score = current score
+
+-- Messages
+
+type Msg = NewCard | GotRandomCard (Model -> Card) | VisualNBackMatch
+
 -- Picks a random card (each card has its own position). This picker chooses a
--- non-matching card 7/10 and an N-Back match 3/10.
+-- non-matching card 8/11 and an N-Back match 3/11.
+
+-- Note (model.n-1) in this is to compensate for the fact that it will be used just before a new card is added: so
+-- the distance between the final new card and the nback match is one less than you'd expect.
 
 randomCard : Random.Generator (Model -> Card)
 randomCard =
@@ -26,7 +32,6 @@ randomCard =
 
 update: Msg -> Model -> (Model, Cmd Msg)
 update msg model = case msg of
-                                  Reset -> (model, Cmd.none)
                                   NewCard -> (model, Random.generate GotRandomCard (randomCard))
                                   GotRandomCard cardMaker -> (addNewCardToDeck model (cardMaker model),  Cmd.none)
 
@@ -38,10 +43,10 @@ view model = deckView model
 isPositionTheSame : Model -> Bool
 isPositionTheSame model =
     let
-        h = List.head model.deck -- Maybe value
-        f = List.head (List.drop model.n model.deck)  -- Maybe value
+        h = List.head model.deck
+        f = List.head (List.drop model.n model.deck)
     in
-       h == f
+        h == f
 
 
 showCardOrNot : Maybe Card -> Cell -> Html Msg
@@ -59,9 +64,11 @@ deckView model =
     in div [] [table [] [
              tr [] [ showCardOrNot tc (0), showCardOrNot tc (1) , showCardOrNot tc (2) ]
            , tr [] [ showCardOrNot tc (3), showCardOrNot tc (4) , showCardOrNot tc (5) ]
-           , tr [] [ showCardOrNot tc (6), showCardOrNot tc (7) , showCardOrNot tc (8) ]
-           ], div [] [text ("Score:" ++ toString (model.score))],  button [onClick NewCard] [ text "New Cards, Please" ], if isPositionTheSame model then text "NBACK!" else text "NOBACK!" , div [] [ button [onClick VisualNBackMatch] [ text "Visual Match" ] ]]
-
+           , tr [] [ showCardOrNot tc (6), showCardOrNot tc (7) , showCardOrNot tc (8) ] ]
+           , div [] [text ("Score:" ++ toString (model.score))] 
+           , button [onClick NewCard] [ text "New Cards, Please" ] 
+           , if isPositionTheSame model then text "NBACK!" else text "NOBACK!" 
+           , div [] [ button [onClick VisualNBackMatch] [ text "Visual Match" ] ] ]
 
 init : ( Model, Cmd a )
 init = ( { n = 2, score = 0 , deck= [ { position = 5} , { position = 3 }, { position = 2} ] } , Cmd.none )
