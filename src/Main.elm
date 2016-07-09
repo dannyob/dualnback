@@ -3,6 +3,9 @@ import Html.Attributes exposing (class, style)
 import Html.App as Html
 import Html.Events exposing (onClick)
 import Random
+import Debug
+
+import Time exposing (second)
 
 -- Model
 
@@ -10,13 +13,13 @@ type alias Cell = Int
 type alias Card = { position: Cell }
 type alias Deck = List Card
 
-type alias Model = { n: Int, deck: Deck , score: Int } -- n = number of cards back to match, deck
+type alias Model = { n: Int, deck: Deck , score: Int, waitingForChoice: Bool } -- n = number of cards back to match, deck
                                                        -- deck = collection of past Cards (positions)
                                                        -- score = current score
 
 -- Messages
 
-type Msg = NewCard | GotRandomCard (Model -> Card) | VisualNBackMatch
+type Msg = NewCard | GotRandomCard (Model -> Card) | VisualNBackMatch | TimerEnded Time.Time
 
 -- Picks a random card (each card has its own position). This picker chooses a
 -- non-matching card 8/11 and an N-Back match 3/11.
@@ -30,15 +33,15 @@ randomCard =
     let m a model = if a < 0 then nbackCard model else { position =  a  }
              in Random.map m (Random.int (0-2) 8)
 
+startTimer : Model -> Model
+startTimer m =  { m | waitingForChoice = True }
+    
 update: Msg -> Model -> (Model, Cmd Msg)
-update msg model = case msg of
-                                  NewCard -> (model, Random.generate GotRandomCard (randomCard))
-                                  GotRandomCard cardMaker -> (addNewCardToDeck model (cardMaker model),  Cmd.none)
-
+update msg model = case msg of 
+                                  NewCard -> Debug.log "NewCard Received" (model, Random.generate GotRandomCard (randomCard))
+                                  GotRandomCard cardMaker -> (startTimer (addNewCardToDeck model (cardMaker model)),  Cmd.none)
                                   VisualNBackMatch -> if (isPositionTheSame model) then ({ model |  score = model.score + 1 }, Cmd.none) else ({ model | score = model.score - 1 }, Cmd.none)
-
-view: Model -> Html Msg
-view model = deckView model
+                                  TimerEnded a -> update NewCard { model | waitingForChoice = False }
 
 isPositionTheSame : Model -> Bool
 isPositionTheSame model =
@@ -58,6 +61,9 @@ showCardOrNot card cell  =
     in
        td [style [("border", "2px solid black"), ("width","100px"),("height", "100px"), xo]] []
 
+view: Model -> Html Msg
+view model = deckView model
+
 deckView : Model -> Html Msg
 deckView model =
     let tc = List.head model.deck
@@ -71,13 +77,13 @@ deckView model =
            , div [] [ button [onClick VisualNBackMatch] [ text "Visual Match" ] ] ]
 
 init : ( Model, Cmd a )
-init = ( { n = 2, score = 0 , deck= [ { position = 5} , { position = 3 }, { position = 2} ] } , Cmd.none )
+init = ( { n = 2, score = 0 , deck= [ { position = 5} , { position = 3 }, { position = 2} ], waitingForChoice = False } , Cmd.none )
 
 addNewCardToDeck : Model -> Card -> Model
 addNewCardToDeck model newcard  = { model | deck = newcard :: model.deck }
 
 subscriptions : Model -> Sub Msg
-subscriptions model = Sub.none
+subscriptions model = if model.waitingForChoice then Time.every (2*second) TimerEnded else Sub.none
 
 main : Program Never
 main = Html.program { init= init, view = view, update = update, subscriptions = subscriptions }
