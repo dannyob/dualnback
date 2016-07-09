@@ -83,7 +83,7 @@ addNewCardToDeck : Model -> Card -> Model
 addNewCardToDeck model newcard  = { model | deck = newcard :: model.deck }
 
 subscriptions : Model -> Sub Msg
-subscriptions model = if model.waitingForChoice then Time.every (2*second) TimerEnded else Sub.none
+subscriptions model = if model.waitingForChoice then Time.every (2*second) (always NewCard) else Sub.none
 
 main : Program Never
 main = Html.program { init= init, view = view, update = update, subscriptions = subscriptions }
