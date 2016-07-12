@@ -89,7 +89,7 @@ init = ( { n = 2, score = 0 , deck= [ PositionMatchesBack, NormalCard { position
 
 
 subscriptions : Model -> Sub Msg
-subscriptions model = if model.waitingForChoice then Time.every (2*second) TimerEnded else Sub.none
+subscriptions model = if model.waitingForChoice then Time.every (2*second) (always NewCard) else Sub.none
 
 main : Program Never
 main = Html.program { init= init, view = view, update = update, subscriptions = subscriptions }
