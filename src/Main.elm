@@ -37,7 +37,12 @@ startTimer m =  { m | waitingForChoice = True }
     
 
 addNewCardToDeck : Model -> Card -> Model
-addNewCardToDeck model newcard  = { model | deck = newcard :: model.deck }
+addNewCardToDeck model newcard  = 
+    let matchesNBack = case newcard of
+        PositionMatchesBack -> True
+        position -> if (Just position == (List.head (List.drop (model.n-1) model.deck))) then True else False
+    in
+    if (matchesNBack) then {model | deck = PositionMatchesBack :: model.deck } else { model | deck = newcard :: model.deck }
 
 update: Msg -> Model -> (Model, Cmd Msg)
 update msg model = case msg of 
