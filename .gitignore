@@ -3,3 +3,4 @@ node_modules/
 tmp/
 dist/
 repl-temp-*
+tests.js
