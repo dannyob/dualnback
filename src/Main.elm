@@ -38,7 +38,7 @@ type alias Deck =
 
 
 type alias Model =
-    { n : Int, deck : Deck, score : Int, stage : GameStage, waitingForChoice : Bool }
+    { n : Int, deck : Deck, score : Int, stage : GameStage }
 
 
 
@@ -74,7 +74,7 @@ randomCard =
 
 startTimer : Model -> Model
 startTimer m =
-    { m | waitingForChoice = True }
+    { m | stage = WaitingForChoice }
 
 
 addNewCardToDeck : Model -> Card -> Model
@@ -122,7 +122,7 @@ update msg model =
                 ( { model | score = model.score - 1 }, Cmd.none )
 
         TimerEnded a ->
-            update NewCard { model | waitingForChoice = False }
+            update NewCard { model | stage = WaitingForNextCard }
 
 
 isPositionTheSame : Model -> Bool
@@ -195,25 +195,29 @@ deckView model =
             , tr [] [ showCardOrNot model (6), showCardOrNot model (7), showCardOrNot model (8) ]
             ]
         , div [] [ text ("Score:" ++ toString (model.score)) ]
-        , button [ onClick NewCard ] [ text "New Cards, Please" ]
         , if isPositionTheSame model then
             text "NBACK!"
           else
             text "NOBACK!"
         , div [] [ button [ onClick VisualNBackMatch ] [ text "Visual Match" ] ]
         , div [] [ button [ onClick QuitGame ] [ text "Quit Game" ] ]
-        , div [] [ button [ onClick PauseGame ] [ text "Pause Game" ] ]
+        , div []
+            [ if model.stage == Paused then
+                button [ onClick NewCard ] [ text "Unpause" ]
+              else
+                button [ onClick PauseGame ] [ text "Pause Game" ]
+            ]
         ]
 
 
 init : ( Model, Cmd a )
 init =
-    ( { n = 2, score = 0, stage = Intro, deck = [ PositionMatchesBack, NormalCard { position = 3 }, NormalCard { position = 2 } ], waitingForChoice = False }, Cmd.none )
+    ( { n = 2, score = 0, stage = Intro, deck = [ PositionMatchesBack, NormalCard { position = 3 }, NormalCard { position = 2 } ] }, Cmd.none )
 
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    if model.waitingForChoice then
+    if model.stage == WaitingForChoice then
         Time.every (2 * second) TimerEnded
     else
         Sub.none
