@@ -20,6 +20,13 @@ type Card
     | PositionMatchesBack
 
 
+type GameStage
+    = WaitingForChoice
+    | Intro
+    | WaitingForNextCard
+    | Paused
+
+
 type alias Deck =
     List Card
 
@@ -31,7 +38,7 @@ type alias Deck =
 
 
 type alias Model =
-    { n : Int, deck : Deck, score : Int, waitingForChoice : Bool }
+    { n : Int, deck : Deck, score : Int, stage : GameStage, waitingForChoice : Bool }
 
 
 
@@ -40,6 +47,9 @@ type alias Model =
 
 type Msg
     = NewCard
+    | StartGame
+    | QuitGame
+    | PauseGame
     | GotRandomCard Card
     | VisualNBackMatch
     | TimerEnded Time.Time
@@ -90,6 +100,15 @@ addNewCardToDeck model newcard =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
+        StartGame ->
+            update NewCard { model | score = 0, stage = WaitingForNextCard }
+
+        QuitGame ->
+            ( { model | stage = Intro }, Cmd.none )
+
+        PauseGame ->
+            ( { model | stage = Paused }, Cmd.none )
+
         NewCard ->
             ( model, Random.generate GotRandomCard randomCard )
 
@@ -149,9 +168,22 @@ showCardOrNot model cell =
         td [ style [ ( "border", "2px solid black" ), ( "width", "100px" ), ( "height", "100px" ), xo ] ] []
 
 
+introView : Model -> Html Msg
+introView model =
+    div []
+        [ text "Welcome to Dual N Back!"
+        , button [ onClick StartGame ] [ text "Start the Game" ]
+        ]
+
+
 view : Model -> Html Msg
 view model =
-    deckView model
+    case model.stage of
+        Intro ->
+            introView model
+
+        _ ->
+            deckView model
 
 
 deckView : Model -> Html Msg
@@ -169,12 +201,14 @@ deckView model =
           else
             text "NOBACK!"
         , div [] [ button [ onClick VisualNBackMatch ] [ text "Visual Match" ] ]
+        , div [] [ button [ onClick QuitGame ] [ text "Quit Game" ] ]
+        , div [] [ button [ onClick PauseGame ] [ text "Pause Game" ] ]
         ]
 
 
 init : ( Model, Cmd a )
 init =
-    ( { n = 2, score = 0, deck = [ PositionMatchesBack, NormalCard { position = 3 }, NormalCard { position = 2 } ], waitingForChoice = False }, Cmd.none )
+    ( { n = 2, score = 0, stage = Intro, deck = [ PositionMatchesBack, NormalCard { position = 3 }, NormalCard { position = 2 } ], waitingForChoice = False }, Cmd.none )
 
 
 subscriptions : Model -> Sub Msg
