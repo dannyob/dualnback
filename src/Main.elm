@@ -5,7 +5,6 @@ import Html.Attributes exposing (class, style)
 import Html.App as Html
 import Html.Events exposing (onClick)
 import Random
-import Debug
 import Time exposing (second)
 
 
@@ -25,14 +24,17 @@ type alias Deck =
     List Card
 
 
+
+-- n = number of cards back to match, deck
+-- deck = collection of past Cards (positions)
+-- score = current score
+
+
 type alias Model =
     { n : Int, deck : Deck, score : Int, waitingForChoice : Bool }
 
 
 
--- n = number of cards back to match, deck
--- deck = collection of past Cards (positions)
--- score = current score
 -- Messages
 
 
@@ -46,8 +48,6 @@ type Msg
 
 -- Picks a random card (each card has its own position). This picker chooses a
 -- non-matching card 8/11 and an N-Back match 3/11.
--- Note (model.n-1) in this is to compensate for the fact that it will be used just before a new card is added: so
--- the distance between the final new card and the nback match is one less than you'd expect.
 
 
 randomCard : Random.Generator Card
