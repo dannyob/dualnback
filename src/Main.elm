@@ -7,6 +7,7 @@ import Html.Events exposing (onClick)
 import Random
 import Time exposing (second)
 
+import Instructions
 
 -- Model
 
@@ -172,6 +173,7 @@ introView : Model -> Html Msg
 introView model =
     div []
         [ text "Welcome to Dual N Back!"
+        , Instructions.instructionsHtml
         , button [ onClick StartGame ] [ text "Start the Game" ]
         ]
 
