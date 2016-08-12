@@ -1,5 +1,7 @@
 $icon-font-path: '~bootstrap-sass/assets/fonts/bootstrap/';
+$font-size-base: 24px;
 @import '~bootstrap-sass/assets/stylesheets/bootstrap/_mixins.scss';
 @import '~bootstrap-sass/assets/stylesheets/_bootstrap.scss';
 
 // can add Boostrap overrides, additional Sass/CSS below...
+@import './dualnback';
