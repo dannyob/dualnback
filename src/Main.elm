@@ -6,8 +6,8 @@ import Html.App as Html
 import Html.Events exposing (onClick)
 import Random
 import Time exposing (second)
-
 import Instructions
+
 
 -- Model
 
@@ -172,20 +172,23 @@ showCardOrNot model cell =
 introView : Model -> Html Msg
 introView model =
     div []
-        [ text "Welcome to Dual N Back!"
-        , Instructions.instructionsHtml
+        [ Instructions.instructionsHtml
         , button [ onClick StartGame ] [ text "Start the Game" ]
         ]
 
 
 view : Model -> Html Msg
 view model =
-    case model.stage of
-        Intro ->
-            introView model
+    div [ class "row" ]
+        [ div [ (class "center-block"), (style [ ( "width", "640px" ), ( "background-color", "#f0f0f0" ) ]) ]
+            [ case model.stage of
+                Intro ->
+                    introView model
 
-        _ ->
-            deckView model
+                _ ->
+                    deckView model
+            ]
+        ]
 
 
 deckView : Model -> Html Msg
