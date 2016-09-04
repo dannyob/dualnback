@@ -9,7 +9,7 @@
     "url": "https://github.com/dannyob/dualnback"
   },
   "scripts": {
-    "start": "webpack-dev-server --hot --inline --content-base src/",
+    "start": "webpack-dev-server --no-info --hot --inline --content-base src/",
     "build": "rimraf dist && webpack",
     "watch": "webpack --watch",
     "test" : "elm-make src/Tests.elm --output tests.js; node tests.js"
